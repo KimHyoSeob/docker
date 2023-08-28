@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo
+    volumes:
+      - data:/data/db
+    env_file:
+      - ./env/mongo.env
+    container_name: mongodb
+  backend:
+    build: ./backend
+    ports:
+      - 80:80
+    volumes:
+      - logs:/app/logs
+      - ./backend:/app
+      - /app/node_modules
+    env_file:
+      - ./env/backend.env
+    depends_on:
+      - mongodb
+    container_name: backend
+  frontend:
+    build: ./frontend
+    ports:
+      - 3000:3000
+    volumes:
+      - ./frontend/src:/app/src
+    stdin_open: true #개방형 입력 연결 활성황
+    tty: true #터미널에 연결하기 위한 tty
+    depends_on:
+      - backend
+    container_name: frontend
+
+volumes:
+  #컨테이너에서 만든 네임드 볼륨은 이곳에 추가해야 함
+  data:
+  logs:
